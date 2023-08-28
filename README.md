@@ -1,5 +1,5 @@
-# ChaoXingSnatchSeat
-A python script in order to snatch seat from the chaoxing Library seat reserve.
+# Nuit-Library-Seats
+fork: https://github.com/bear-zd/ChaoXingReserveSeat
 
 ## setting 
 before running the script , you should install a package `pip install pycrypto`
@@ -44,7 +44,11 @@ What you should do is just set a crontab on your server to run this script.
 
 Use `python main.py` to run this script, add arguement `-u config.json` to point the config file posision
 
-In linux , you can just set a crontab : `crontab -e` and add the command :`0 7 * * * python3 main.py`
+In linux/macos , you can just set a crontab : `crontab -e` and add the command :
+`0 8 * * * cd ~/Desktop/pythonProject/Nuit-Library-Seats && source venv/bin/activate && python3 main.py >> log.txt 2>&1`
+
+每早八点定时跑脚本
+
 
 In windows, you can add a time task:
 
