@@ -1,10 +1,20 @@
 {
-    "reserve": [
-        {"username": "xxxxxxx",
-        "password": "xxxxxxxxxx",
-        "time": ["21:00","22:00"],
-        "roomid":"2609",
-        "seatid":["002", "003"]
+  "reserve": [
+    {
+      "username": "",
+      "password": "",
+      "day": 1,
+      "time": [
+        ["8:30", "12:30"],
+        ["12:30", "16:30"],
+        ["16:30", "20:30"],
+        ["20:30", "22:00"]
+      ],
+      "wait_time": 5,
+      "roomid": "6993",
+      "seatid": [
+        "105"
+      ]
     }
-    ]
+  ]
 }
