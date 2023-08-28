@@ -5,23 +5,38 @@ A python script in order to snatch seat from the chaoxing Library seat reserve.
 before running the script , you should install a package `pip install pycrypto`
 
 and edit the config.json to make this script work.
+
+##  addition
+添加签到功能，每次启动默认为当前用户签到，可以在配置文件中修改sign=0来取消签到
+
 ```json
 {
-    "reserve": [
-        {"username": "XXXXXXXX", //https://passport2.chaoxing.com/mlogin?loginType=1&newversion=true&fid=&  login this website to make sure your username and password is usable  
-        "password": "XXXXXXXX",
-        "time": ["08:00","22:00"], // the time between your start and end
-        "roomid":"2609", //2609:四楼外圈,5483:四楼内圈,2610:五楼外圈,5484:五楼内圈
-        "seatid":"002" // make sure the seat id format is right. "6" is not equal to "006"
-        },
-        {"username": "xxxxxxx",
-        "password": "xxxxxxxxxx",
-        "time": ["21:00","22:00"],
-        "roomid":"2609",
-        "seatid":"002"
-        }
-        ]
+  "settings": {
+    "SYS_SLEEP_TIME": 1, // 每个帐号抢的间隔
+    "SYS_END_TIME": "22:01:00" // 抢座位的截止时间
+  },
+  "reserve": [
+    {
+      "username": "username",
+      "password": "password",
+      "sign": 1, // 是否自动签到
+      "day": 1, // 0:今天，1:明天，2:后天，以此类推
+      "roomid": "6993", // 房间编号
+      "seatid": [
+        "105" // 座位编号
+      ],
+      "time": [
+        ["8:30", "12:30"],
+        ["12:30", "16:30"],
+        ["16:30", "20:30"],
+        ["20:30", "22:00"]
+      ],
+      "wait_time": 1, // 每次抢time中的时间间隔，实测东软1s间隔不会有太大问题
+      "flag": 0 // 是否需要反复抢，东软基本上没人跟你抢。。
+    }
+  ]
 }
+
 ```
 What you should do is just set a crontab on your server to run this script.
 

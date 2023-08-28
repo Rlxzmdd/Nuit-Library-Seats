@@ -13,8 +13,8 @@ import argparse
 import os
 import execjs
 
-SLEEPTIME = 0.2
-ENDTIME = "22:01:00"
+SYS_SLEEP_TIME = 1
+SYS_END_TIME = "22:01:00"
 
 BLOCK_SIZE = 16  # Bytes
 
@@ -119,7 +119,10 @@ class reserve:
             url=url, params=parm, verify=False).content.decode('utf-8')
         self.submit_msg.append(
             seat[0] + "~" + seat[1] + ':  ' + str(json.loads(html)))
-        print(json.loads(html))
+        if json.loads(html)['success']:
+            print("[true]成功抢座: {},{}".format(seatid, seat))
+        else:
+            print("[false]抢座失败: {},{} --- {}".format(seatid, seat, json.loads(html)))
 
         return json.loads(html)["success"]
 
@@ -141,96 +144,85 @@ class reserve:
         else:
             return (False, obj['msg2'])
 
-    def submit(self, day, i,wait_time, roomid, seatid):
+    def submit(self, day, i, wait_time, roomid, seatid):
         for seat in seatid:
             suc = False
             remaining_times_for_seat = 1  # 每一个的座位尝试次数
             while ~suc and remaining_times_for_seat > 0:
-                token = self.get_html(self.url.format(roomid, seat))
                 for times in i:
+                    token = self.get_html(self.url.format(roomid, seat))
                     suc = self.get_submit(self.submit_url, day, times, token, roomid, seat, 0)
                     time.sleep(wait_time)
                 if suc:
                     return suc
-                time.sleep(SLEEPTIME)
+                time.sleep(SYS_SLEEP_TIME)
                 remaining_times_for_seat -= 1
         return suc
 
-    def sign(self,current_date):
-        info = self.get_my_seat_id(current_date)
-        data_i = []
-        for index in info:
+    def sign(self, current_date):
+        sign_data = self.get_my_seat_id(current_date)
+        need_sign_data = []
+        for index in sign_data:
             if index['status'] == 1:
-                location = index['firstLevelName'] + index['secondLevelName'] + index['thirdLevelName'] + index[
-                    'seatNum']
-                return "{}:已经签过到了，快学习吧~".format(location)
+                print("[exist]今日已签: {}".format(
+                    index['firstLevelName'] + index['secondLevelName'] + index['thirdLevelName'] + index['seatNum']))
             if index['status'] == 0 or index['status'] == 3 or index['status'] == 5:
-                data_i.append(index)
+                need_sign_data.append(index)
                 continue
-        location = None
-        id = None
-        seatnum = None
-        roomid = None
-        seatid = None
-        inital = 9999999999999
-        if data_i:
-            if len(data_i) >= 2:
-                for index in data_i:
-                    if int(index['startTime']) < inital:
-                        if self.requests == 0:
-                            seatid = index['seatId']
-                        inital = index['startTime']
-                        id = index['id']
-                        seatnum = index['seatNum']
-                        roomid = index['roomId']
-                        location = index['firstLevelName'] + index['secondLevelName'] + index['thirdLevelName'] + index[
-                            'seatNum']
-            else:
-                seatid = data_i[-1]['seatId']
-                id = data_i[-1]['id']  # -1表示最后一项
-                seatnum = data_i[-1]['seatNum']
-                roomid = data_i[-1]['roomId']
-                location = data_i[-1]['firstLevelName'] + data_i[-1]['secondLevelName'] + \
-                           data_i[-1]['thirdLevelName'] + data_i[-1]['seatNum']
-                response = self.requests.get(url='https://office.chaoxing.com/data/apps/seat/sign?id={}'.format(id))
-            print(response.text)
-            if response.json()['success']:
-                print(self.acc, '签到', '成功', location)
-                return "{}：签到成功".format(location)
-            return "{}：{}".format(location, response.json()['msg'])
-        return "没有座位可以签到"
+        if need_sign_data:
+            for need_sign in need_sign_data:
+                response = self.requests.get(
+                    url='https://office.chaoxing.com/data/apps/seat/sign?id={}'.format(need_sign["id"]))
+                location = need_sign['firstLevelName'] + need_sign['secondLevelName'] + need_sign['thirdLevelName'] + \
+                           need_sign['seatNum']
+                if response.json()['success']:
+                    print("[true]成功签到: {}".format(location))
+                else:
+                    print("[false]签到失败: {}\n反馈信息: {}".format(location, response.json()['msg']))
+        else:
+            print("[none]今日没有需要签到的数据")
 
-    def get_my_seat_id(self,current_date):
-        # seatId 不一定为602 仅为演示
+    def get_my_seat_id(self, current_date):
         response = self.requests.get(url='https://office.chaoxing.com/data/apps/seat/reservelist?'
-                                        'indexId=0&'
-                                        'pageSize=100&'
-                                        'type=-1').json()['data']['reserveList']
+                                         'indexId=0&'
+                                         'pageSize=100&'
+                                         'type=-1').json()['data']['reserveList']
         result = []
         for index in response:
             if index['type'] == -1:
                 if index['today'] == current_date:
+                    # 今日签到信息
                     result.append(index)
         return result
+
 
 def main(users):
     current_date = datetime.date.today().strftime("%Y-%m-%d")
     current_time = time.strftime("%H:%M:%S", time.localtime())
     suc = False
-    print(current_time, ENDTIME)
+    print(current_time, SYS_END_TIME)
 
-    while current_time < ENDTIME:
+    while current_time < SYS_END_TIME:
+        if len(users) == 0:
+            print("--- 结束 ---")
+            return
         for user in users:
-            username, password, day, times,wait_time, roomid, seatid = user.values()
+            username, password, sign, day, times, wait_time, roomid, seatid, flag = user.values()
             s = reserve()
             s.get_login_status()
             s.login(username, password)
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
-            s.sign(current_date)
-            # suc = s.submit(day, times,wait_time, roomid, seatid)
+            if sign:
+                s.sign(current_date)
+                # 签到今日座位
+            suc = s.submit(day, times, wait_time, roomid, seatid)
             # 支持1个人抢座 多个人需要把return去了
-            if suc:
-                return
+            if flag:
+                if suc:
+                    return
+            else:
+                users.remove(user)
+
         current_time = time.strftime("%H:%M:%S", time.localtime())
 
 
@@ -240,5 +232,8 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--user', default=config_path, help='user config file')
     args = parser.parse_args()
     with open(args.user, "r+") as data:
-        usersdata = json.load(data)["reserve"]
-    main(usersdata)
+        settings = json.load(data)
+        SYS_SLEEP_TIME = settings["settings"]["SYS_SLEEP_TIME"]
+        SYS_END_TIME = settings["settings"]["SYS_END_TIME"]
+        users_data = settings["reserve"]
+    main(users_data)

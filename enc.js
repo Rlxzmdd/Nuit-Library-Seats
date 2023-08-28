@@ -196,7 +196,7 @@ data = {
     'roomId': '3772',
     'day': '2023-05-31',
     'startTime':'22:30',
-    'endTime': '23:00',
+    'SYS_END_TIME': '23:00',
     'seatNum': '039',
     'captcha': 'validate_42sxgHoTPTKbt0uZxPJ7ssOvtXr3ZgZ1_23D5C04E6DFB528BB4D66DCC30B59885',
     'token': 'fb443cb847844a558283aa12e63b64b7'
