@@ -1,13 +1,20 @@
 # Nuit-Library-Seats
-fork: https://github.com/bear-zd/ChaoXingReserveSeat
 
-## setting 
-before running the script , you should install a package `pip install pycrypto`
+fork: <https://github.com/bear-zd/ChaoXingReserveSeat>
+
+## setting
+
+before running the script , you should install some package
+
+```bash
+pip install pycryptodome PyExecJS
+```
 
 and edit the config.json to make this script work.
 
-##  addition
-添加签到功能，每次启动默认为当前用户签到，可以在配置文件中修改sign=0来取消签到
+## addition
+
+添加签到功能，每次启动默认为当前用户签到，可以在配置文件中     修改sign=0来取消签到
 
 ```json
 {
@@ -38,6 +45,7 @@ and edit the config.json to make this script work.
 }
 
 ```
+
 What you should do is just set a crontab on your server to run this script.
 
 ## running
@@ -48,7 +56,6 @@ In linux/macos , you can just set a crontab : `crontab -e` and add the command :
 `0 8 * * * cd ~/Desktop/pythonProject/Nuit-Library-Seats && source venv/bin/activate && python3 main.py >> log.txt 2>&1`
 
 每早八点定时跑脚本
-
 
 In windows, you can add a time task:
 

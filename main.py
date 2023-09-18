@@ -7,7 +7,7 @@ import time
 import datetime
 import json
 
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 from urllib3.exceptions import InsecureRequestWarning
 import argparse
 import os
